@@ -1,9 +1,59 @@
 name: 🔗 GHA
-on: [push, pull_request, merge_group, workflow_dispatch]
+
+# racecar fork-testbed patch. Changes from upstream:
+#   1. workflow_dispatch grew the `leg`/`profile`/`racecar_run` inputs so racecar
+#      can trigger a run and choose baseline vs instrumented.
+#   2. Non-Linux legs deleted: 🤖 Android, 🍏 iOS, 🍎 macOS, 🏁 Windows and
+#      🌐 Web. Observables are gated to linux x86_64/aarch64, and we disable
+#      non-Linux runners in this fork. Only 📊 Static checks and 🐧 Linux remain.
+#      The reusable workflow files themselves are left on disk, just uncalled.
+#   3. The chalk switch is threaded into the called workflows as an input:
+#      reusable-workflow `with:` cannot read the `env` context, so the
+#      expression is inlined at each call site. The actual checkout swap and
+#      the fail-closed assertion live in static_checks.yml and linux_builds.yml,
+#      which are the workflows that own the steps.
+#   4. permissions: id-token: write for the action's OIDC connect (called
+#      workflows inherit the caller's token scopes), contents: read restated.
+#   5. concurrency: dispatched runs get a per-run group. Upstream keys on
+#      ref_name with cancel-in-progress, which would make the baseline dispatch
+#      kill the instrumented one -- both are dispatched on the same ref.
+# Build and test COMMANDS are untouched.
+
+on:
+  workflow_dispatch:
+    inputs:
+      leg:
+        description: "baseline (uninstrumented) or instrumented (under chalk/curiosity)"
+        type: choice
+        options: [instrumented, baseline]
+        default: instrumented
+      profile:
+        description: "CrashOverride chalk profile"
+        type: string
+        default: curiosity-tests-racecar
+      racecar_run:
+        description: "racecar correlation token, echoed into the run name"
+        type: string
+        default: ""
+  push:
+  pull_request:
+  merge_group:
+
+run-name: "🔗 GHA ${{ inputs.leg || 'push' }} ${{ inputs.racecar_run }}"
 
 concurrency:
-  group: ${{ github.workflow }}|${{ github.ref_name }}
+  group: ${{ github.workflow }}|${{ github.event_name == 'workflow_dispatch' && github.run_id || github.ref_name }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  # Documented here for symmetry with the other patched forks; the call sites
+  # below have to inline the same expression because `with:` on a reusable
+  # workflow cannot read the `env` context.
+  CHALK_ON: ${{ github.event_name == 'workflow_dispatch' && inputs.leg != 'baseline' }}
 
 jobs:
   # First stage: Only static checks, fast and prevent expensive builds from running.
@@ -12,22 +62,11 @@ jobs:
     if: ${{ !vars.DISABLE_GODOT_CI || github.run_attempt > 1 || github.event_name == 'workflow_dispatch' }}
     name: 📊 Static checks
     uses: ./.github/workflows/static_checks.yml
+    with:
+      chalk_on: ${{ github.event_name == 'workflow_dispatch' && inputs.leg != 'baseline' }}
+      profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
 
   # Second stage: Run all the builds and some of the tests.
-
-  android-build:
-    name: 🤖 Android
-    needs: static-checks
-    if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
-    uses: ./.github/workflows/android_builds.yml
-    secrets:
-      SERVICE_ACCOUNT_KEY: ${{ secrets.SERVICE_ACCOUNT_KEY }}
-
-  ios-build:
-    name: 🍏 iOS
-    needs: static-checks
-    if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
-    uses: ./.github/workflows/ios_builds.yml
 
   linux-build:
     name: 🐧 Linux
@@ -36,21 +75,5 @@ jobs:
     uses: ./.github/workflows/linux_builds.yml
     with:
       changed-files: ${{ needs.static-checks.outputs.changed-files }}
-
-  macos-build:
-    name: 🍎 macOS
-    needs: static-checks
-    if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
-    uses: ./.github/workflows/macos_builds.yml
-
-  windows-build:
-    name: 🏁 Windows
-    needs: static-checks
-    if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
-    uses: ./.github/workflows/windows_builds.yml
-
-  web-build:
-    name: 🌐 Web
-    needs: static-checks
-    if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
-    uses: ./.github/workflows/web_builds.yml
+      chalk_on: ${{ github.event_name == 'workflow_dispatch' && inputs.leg != 'baseline' }}
+      profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
