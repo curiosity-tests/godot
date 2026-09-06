@@ -42,7 +42,7 @@ on:
 run-name: "🔗 GHA ${{ inputs.leg || 'push' }} ${{ inputs.racecar_run }}"
 
 concurrency:
-  group: ${{ github.workflow }}|${{ github.event_name == 'workflow_dispatch' && github.run_id || github.ref_name }}
+  group: ${{ github.workflow }}|${{ 'push' == 'workflow_dispatch' && github.run_id || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
@@ -53,17 +53,17 @@ env:
   # Documented here for symmetry with the other patched forks; the call sites
   # below have to inline the same expression because `with:` on a reusable
   # workflow cannot read the `env` context.
-  CHALK_ON: ${{ github.event_name == 'workflow_dispatch' && inputs.leg != 'baseline' }}
+  CHALK_ON: ${{ inputs.leg == 'instrumented' }}
 
 jobs:
   # First stage: Only static checks, fast and prevent expensive builds from running.
 
   static-checks:
-    if: ${{ !vars.DISABLE_GODOT_CI || github.run_attempt > 1 || github.event_name == 'workflow_dispatch' }}
+    if: ${{ !vars.DISABLE_GODOT_CI || github.run_attempt > 1 || 'push' == 'workflow_dispatch' }}
     name: 📊 Static checks
     uses: ./.github/workflows/static_checks.yml
     with:
-      chalk_on: ${{ github.event_name == 'workflow_dispatch' && inputs.leg != 'baseline' }}
+      chalk_on: ${{ inputs.leg == 'instrumented' }}
       profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
 
   # Second stage: Run all the builds and some of the tests.
@@ -71,9 +71,9 @@ jobs:
   linux-build:
     name: 🐧 Linux
     needs: static-checks
-    if: needs.static-checks.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
+    if: needs.static-checks.outputs.sources-changed == 'true' || 'push' != 'pull_request'
     uses: ./.github/workflows/linux_builds.yml
     with:
       changed-files: ${{ needs.static-checks.outputs.changed-files }}
-      chalk_on: ${{ github.event_name == 'workflow_dispatch' && inputs.leg != 'baseline' }}
+      chalk_on: ${{ inputs.leg == 'instrumented' }}
       profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
