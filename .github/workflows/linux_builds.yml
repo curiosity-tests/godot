@@ -59,280 +59,351 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Editor w/ Mono (target=editor)
-            cache-name: linux-editor-mono
-            target: editor
-            scons-flags: module_mono_enabled=yes compiledb=yes
-            bin: ./bin/godot.linuxbsd.editor.x86_64.mono
-            build-mono: true
-            doc-test: true
-            proj-conv: true
-            proj-export: true
-            api-compat: true
-            artifact: true
+        - name: Editor w/ Mono (target=editor)
+          cache-name: linux-editor-mono
+          target: editor
+          scons-flags: module_mono_enabled=yes compiledb=yes
+          bin: ./bin/godot.linuxbsd.editor.x86_64.mono
+          build-mono: true
+          doc-test: true
+          proj-conv: true
+          proj-export: true
+          api-compat: true
+          artifact: true
             # Validate godot-cpp compatibility on one arbitrary editor build.
-            godot-cpp: true
-            clangd-tidy: true
+          godot-cpp: true
+          clangd-tidy: true
 
-          - name: Editor with doubles and GCC sanitizers (target=editor, dev_build=yes, scu_build=yes, precision=double, use_asan=yes, use_ubsan=yes, linker=mold)
-            cache-name: linux-editor-double-sanitizers
-            target: editor
+        - name: Editor with doubles and GCC sanitizers (target=editor, dev_build=yes, scu_build=yes, precision=double, use_asan=yes, use_ubsan=yes, linker=mold)
+          cache-name: linux-editor-double-sanitizers
+          target: editor
             # Debug symbols disabled as they're huge on this build and we hit the 14 GB limit for runners.
-            scons-flags: >-
-              dev_build=yes
-              scu_build=yes
-              debug_symbols=no
-              precision=double
-              use_asan=yes
-              use_ubsan=yes
-              linker=mold
-            bin: ./bin/godot.linuxbsd.editor.dev.double.x86_64.san
-            install-mold: true
-            proj-test: true
-            free-space: true
+          scons-flags: >-
+            dev_build=yes
+            scu_build=yes
+            debug_symbols=no
+            precision=double
+            use_asan=yes
+            use_ubsan=yes
+            linker=mold
+          bin: ./bin/godot.linuxbsd.editor.dev.double.x86_64.san
+          install-mold: true
+          proj-test: true
+          free-space: true
 
-          - name: Editor with clang sanitizers (target=editor, dev_build=yes, use_asan=yes, use_ubsan=yes, use_llvm=yes, linker=lld)
-            cache-name: linux-editor-llvm-sanitizers
-            target: editor
-            scons-flags: >-
-              dev_build=yes
-              use_asan=yes
-              use_ubsan=yes
-              use_llvm=yes
-              linker=lld
-            bin: ./bin/godot.linuxbsd.editor.dev.x86_64.llvm.san
+        - name: Editor with clang sanitizers (target=editor, dev_build=yes, use_asan=yes, use_ubsan=yes, use_llvm=yes, linker=lld)
+          cache-name: linux-editor-llvm-sanitizers
+          target: editor
+          scons-flags: >-
+            dev_build=yes
+            use_asan=yes
+            use_ubsan=yes
+            use_llvm=yes
+            linker=lld
+          bin: ./bin/godot.linuxbsd.editor.dev.x86_64.llvm.san
             # Test our oldest supported SCons/Python versions on one arbitrary editor build.
-            legacy-scons: true
-            free-space: true
+          legacy-scons: true
+          free-space: true
 
-          - name: Editor with ThreadSanitizer (target=editor, dev_build=yes, use_tsan=yes, use_llvm=yes, linker=lld)
-            cache-name: linux-editor-thread-sanitizer
-            target: editor
-            scons-flags: >-
-              dev_build=yes
-              use_tsan=yes
-              use_llvm=yes
-              linker=lld
-            bin: ./bin/godot.linuxbsd.editor.dev.x86_64.llvm.san
-            free-space: true
+        - name: Editor with ThreadSanitizer (target=editor, dev_build=yes, use_tsan=yes, use_llvm=yes, linker=lld)
+          cache-name: linux-editor-thread-sanitizer
+          target: editor
+          scons-flags: >-
+            dev_build=yes
+            use_tsan=yes
+            use_llvm=yes
+            linker=lld
+          bin: ./bin/godot.linuxbsd.editor.dev.x86_64.llvm.san
+          free-space: true
 
-          - name: Template w/ Mono, release (target=template_release)
-            cache-name: linux-template-mono
-            target: template_release
-            scons-flags: module_mono_enabled=yes
-            bin: ./bin/godot.linuxbsd.template_release.x86_64.mono
-            artifact: true
+        - name: Template w/ Mono, release (target=template_release)
+          cache-name: linux-template-mono
+          target: template_release
+          scons-flags: module_mono_enabled=yes
+          bin: ./bin/godot.linuxbsd.template_release.x86_64.mono
+          artifact: true
 
-          - name: Template w/ Mono, debug (target=template_debug)
-            cache-name: linux-template-mono-debug
-            target: template_debug
-            scons-flags: module_mono_enabled=yes
-            bin: ./bin/godot.linuxbsd.template_debug.x86_64.mono
-            artifact: true
+        - name: Template w/ Mono, debug (target=template_debug)
+          cache-name: linux-template-mono-debug
+          target: template_debug
+          scons-flags: module_mono_enabled=yes
+          bin: ./bin/godot.linuxbsd.template_debug.x86_64.mono
+          artifact: true
 
-          - name: Minimal template (target=template_release, everything disabled)
-            cache-name: linux-template-minimal
-            target: template_release
-            scons-flags: >-
-              modules_enabled_by_default=no
-              module_text_server_fb_enabled=no
-              disable_3d=yes
-              disable_advanced_gui=yes
-              disable_physics_2d=yes
-              disable_physics_3d=yes
-              deprecated=no
-              minizip=no
-              brotli=no
-            bin: ./bin/godot.linuxbsd.template_release.x86_64
-            artifact: true
+        - name: Minimal template (target=template_release, everything disabled)
+          cache-name: linux-template-minimal
+          target: template_release
+          scons-flags: >-
+            modules_enabled_by_default=no
+            module_text_server_fb_enabled=no
+            disable_3d=yes
+            disable_advanced_gui=yes
+            disable_physics_2d=yes
+            disable_physics_3d=yes
+            deprecated=no
+            minizip=no
+            brotli=no
+          bin: ./bin/godot.linuxbsd.template_release.x86_64
+          artifact: true
 
     steps:
-      - name: Checkout
-        uses: crashappsec/action-checkout@e9ff46a65f6403d9d88b87d248c3dfa41550ec75
-        with:
-          chalk: ${{ env.CHALK_ON }}
-          profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
+    - name: Checkout
+      uses: crashappsec/action-checkout@e9ff46a65f6403d9d88b87d248c3dfa41550ec75
+      with:
+        chalk: ${{ env.CHALK_ON }}
+        profile: ${{ inputs.profile || 'curiosity-tests-racecar' }}
           # Default is best-effort; a silently-uninstrumented run is a corrupt
           # data point rather than a degraded one, so fail closed.
-          observables_continue_on_error: false
+        observables_continue_on_error: false
           # Upstream used actions/checkout, which does not fetch LFS. Keep the
           # tree identical to what upstream CI builds.
-          lfs: false
-          submodules: recursive
+        lfs: false
+        submodules: recursive
 
       # Assert on the host-server socket, NOT on LD_PRELOAD: co-monitor's loader
       # clears LD_PRELOAD once it has injected, so an empty LD_PRELOAD is what
       # SUCCESS looks like from inside the shell. co-hostd daemonizes, so pgrep
       # is no good either. Socket existence is what curiosity's own CI gates on.
-      - name: Assert instrumentation is live
-        if: env.CHALK_ON == 'true'
-        run: |
-          test -n "${CURIOSITY_ROOT:-}" || { echo "::error::CURIOSITY_ROOT unset - observables never installed"; exit 1; }
-          test -S "${CURIOSITY_SOCKET_NAME:?socket name unset}" || { echo "::error::co-hostd socket absent"; exit 1; }
+    - name: Setup dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install libwayland-bin  # TODO: Figure out somehow how to embed this one.
+        if [ "${{ matrix.proj-test }}" == "true" -o "${{ matrix.proj-export }}" == "true" ]; then
+          sudo apt-get install mesa-vulkan-drivers
+        fi
 
-      - name: Setup dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install libwayland-bin  # TODO: Figure out somehow how to embed this one.
-          if [ "${{ matrix.proj-test }}" == "true" -o "${{ matrix.proj-export }}" == "true" ]; then
-            sudo apt-get install mesa-vulkan-drivers
-          fi
+    - name: Free disk space on runner
+      if: matrix.free-space
+      run: |
+        echo "Disk usage before:" && df -h
+        sudo rm -rf /usr/local/lib/android
+        echo "Disk usage after:" && df -h
 
-      - name: Free disk space on runner
-        if: matrix.free-space
-        run: |
-          echo "Disk usage before:" && df -h
-          sudo rm -rf /usr/local/lib/android
-          echo "Disk usage after:" && df -h
+    - name: Restore Godot build cache
+      uses: ./.github/actions/godot-cache-restore
+      with:
+        cache-name: ${{ matrix.cache-name }}
+      continue-on-error: true
 
-      - name: Restore Godot build cache
-        uses: ./.github/actions/godot-cache-restore
-        with:
-          cache-name: ${{ matrix.cache-name }}
-        continue-on-error: true
+    - name: Setup Python and SCons
+      if: "!matrix.legacy-scons"
+      uses: ./.github/actions/godot-deps
 
-      - name: Setup Python and SCons
-        if: "!matrix.legacy-scons"
-        uses: ./.github/actions/godot-deps
-
-      - name: Setup Python and SCons (legacy versions)
-        if: matrix.legacy-scons
-        uses: ./.github/actions/godot-deps
-        with:
+    - name: Setup Python and SCons (legacy versions)
+      if: matrix.legacy-scons
+      uses: ./.github/actions/godot-deps
+      with:
           # Sync with Ensure*Version in SConstruct.
-          python-version: 3.9
-          scons-version: 4.4
+        python-version: 3.9
+        scons-version: 4.4
 
-      - name: Force remove preinstalled .NET SDKs
-        if: matrix.build-mono
-        run: |
-          sudo rm -rf /usr/share/dotnet/sdk/*
+    - name: Force remove preinstalled .NET SDKs
+      if: matrix.build-mono
+      run: |
+        sudo rm -rf /usr/share/dotnet/sdk/*
 
-      - name: Setup older .NET SDK as baseline
-        if: matrix.build-mono
-        uses: actions/setup-dotnet@v5
-        with:
+    - name: Setup older .NET SDK as baseline
+      if: matrix.build-mono
+      uses: actions/setup-dotnet@v5
+      with:
           # Targeting the oldest version we want to support to ensure it still builds.
-          dotnet-version: 8.0.100
+        dotnet-version: 8.0.100
 
-      - name: Download pre-built AccessKit
-        shell: sh
-        id: accesskit-sdk
-        run: |
-          if python ./misc/scripts/install_accesskit.py; then
-            echo "ACCESSKIT_ENABLED=yes" >> "$GITHUB_OUTPUT"
-          else
-            echo "::warning::AccessKit SDK installation failed, building without AccessKit support."
-            echo "ACCESSKIT_ENABLED=no" >> "$GITHUB_OUTPUT"
-          fi
+    - name: Download pre-built AccessKit
+      shell: sh
+      id: accesskit-sdk
+      run: |
+        if python ./misc/scripts/install_accesskit.py; then
+          echo "ACCESSKIT_ENABLED=yes" >> "$GITHUB_OUTPUT"
+        else
+          echo "::warning::AccessKit SDK installation failed, building without AccessKit support."
+          echo "ACCESSKIT_ENABLED=no" >> "$GITHUB_OUTPUT"
+        fi
 
-      - name: Install mold linker
-        if: matrix.install-mold
-        uses: rui314/setup-mold@v1
-        with:
-          make-default: false
+    - name: Install mold linker
+      if: matrix.install-mold
+      uses: rui314/setup-mold@v1
+      with:
+        make-default: false
 
-      - name: Compilation
-        uses: ./.github/actions/godot-build
-        with:
-          scons-flags: ${{ env.SCONS_FLAGS }} ${{ matrix.scons-flags }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
-          platform: linuxbsd
-          target: ${{ matrix.target }}
+    - name: Compilation
+      uses: ./.github/actions/godot-build
+      with:
+        scons-flags: ${{ env.SCONS_FLAGS }} ${{ matrix.scons-flags }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }}
+        platform: linuxbsd
+        target: ${{ matrix.target }}
 
-      - name: Style checks via clangd-tidy
-        if: matrix.clangd-tidy
-        uses: ./.github/actions/clangd-tidy
-        with:
-          changed-files: ${{ inputs.changed-files }}
+    - name: Style checks via clangd-tidy
+      if: matrix.clangd-tidy
+      uses: ./.github/actions/clangd-tidy
+      with:
+        changed-files: ${{ inputs.changed-files }}
 
-      - name: Compilation (godot-cpp)
-        uses: ./.github/actions/godot-cpp-build
-        if: matrix.godot-cpp
-        with:
-          bin: ${{ matrix.bin }}
-          scons-flags: target=template_debug dev_build=yes verbose=yes
-          godot-cpp-branch: ${{ env.GODOT_CPP_BRANCH }}
+    - name: Compilation (godot-cpp)
+      uses: ./.github/actions/godot-cpp-build
+      if: matrix.godot-cpp
+      with:
+        bin: ${{ matrix.bin }}
+        scons-flags: target=template_debug dev_build=yes verbose=yes
+        godot-cpp-branch: ${{ env.GODOT_CPP_BRANCH }}
 
-      - name: Save Godot build cache
-        uses: ./.github/actions/godot-cache-save
-        with:
-          cache-name: ${{ matrix.cache-name }}
-        continue-on-error: true
+    - name: Save Godot build cache
+      uses: ./.github/actions/godot-cache-save
+      with:
+        cache-name: ${{ matrix.cache-name }}
+      continue-on-error: true
 
-      - name: Generate C# glue
-        if: matrix.build-mono
-        run: |
-          ${{ matrix.bin }} --headless --generate-mono-glue ./modules/mono/glue
+    - name: Generate C# glue
+      if: matrix.build-mono
+      run: |
+        ${{ matrix.bin }} --headless --generate-mono-glue ./modules/mono/glue
 
-      - name: Build .NET solutions
-        if: matrix.build-mono
-        run: |
-          dotnet --info
-          ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=linuxbsd --werror
+    - name: Build .NET solutions
+      if: matrix.build-mono
+      run: |
+        dotnet --info
+        ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=linuxbsd --werror
 
-      - name: Prepare artifact
-        if: matrix.artifact
-        run: |
-          rm -rf ./bin/build_deps
-          strip bin/godot.*
-          chmod +x bin/godot.*
+    - name: Prepare artifact
+      if: matrix.artifact
+      run: |
+        rm -rf ./bin/build_deps
+        strip bin/godot.*
+        chmod +x bin/godot.*
 
-      - name: Upload artifact
-        uses: ./.github/actions/upload-artifact
-        if: matrix.artifact
-        with:
-          name: ${{ matrix.cache-name }}
+    - name: Upload artifact
+      uses: ./.github/actions/upload-artifact
+      if: matrix.artifact
+      with:
+        name: ${{ matrix.cache-name }}
 
-      - name: Unit tests
-        run: |
-          ${{ matrix.bin }} --version
-          ${{ matrix.bin }} --help
-          ${{ matrix.bin }} --headless --test --force-colors
+    - name: Unit tests
+      run: |
+        ${{ matrix.bin }} --version
+        ${{ matrix.bin }} --help
+        ${{ matrix.bin }} --headless --test --force-colors
 
-      - name: .NET source generators tests
-        if: matrix.build-mono
-        run: |
-          dotnet test modules/mono/editor/Godot.NET.Sdk/Godot.SourceGenerators.Tests
+    - name: .NET source generators tests
+      if: matrix.build-mono
+      run: |
+        dotnet test modules/mono/editor/Godot.NET.Sdk/Godot.SourceGenerators.Tests
 
       # Check class reference
-      - name: Check for class reference updates
-        if: matrix.doc-test
-        run: |
-          echo "Running --doctool to see if this changes the public API without updating the documentation."
-          echo -e "If a diff is shown, it means that your code/doc changes are incomplete and you should update the class reference with --doctool.\n\n"
-          ${{ matrix.bin }} --doctool --headless 2>&1 > /dev/null || true
-          git diff --color --exit-code && ! git ls-files --others --exclude-standard | sed -e 's/^/New doc file missing in PR: /' | grep 'xml$'
+    - name: Check for class reference updates
+      if: matrix.doc-test
+      run: |
+        echo "Running --doctool to see if this changes the public API without updating the documentation."
+        echo -e "If a diff is shown, it means that your code/doc changes are incomplete and you should update the class reference with --doctool.\n\n"
+        ${{ matrix.bin }} --doctool --headless 2>&1 > /dev/null || true
+        git diff --color --exit-code && ! git ls-files --others --exclude-standard | sed -e 's/^/New doc file missing in PR: /' | grep 'xml$'
 
       # Check API backwards compatibility
-      - name: Check for GDExtension compatibility – JSON check
-        if: matrix.api-compat
-        run: |
-          ./misc/scripts/validate_extension_api.sh "${{ matrix.bin }}"
+    - name: Check for GDExtension compatibility – JSON check
+      if: matrix.api-compat
+      run: |
+        ./misc/scripts/validate_extension_api.sh "${{ matrix.bin }}"
 
-      - name: Test GDExtension compatibility – load methods
-        uses: ./.github/actions/godot-compat-test
-        if: matrix.api-compat
-        with:
-          bin: ${{ matrix.bin }}
-          reftags: "4.5-stable,4.4-stable"
+    - name: Test GDExtension compatibility – load methods
+      uses: ./.github/actions/godot-compat-test
+      if: matrix.api-compat
+      with:
+        bin: ${{ matrix.bin }}
+        reftags: "4.5-stable,4.4-stable"
 
       # Download and run the test project
-      - name: Test Godot project
-        uses: ./.github/actions/godot-project-test
-        if: matrix.proj-test
-        with:
-          bin: ${{ matrix.bin }}
+    - name: Test Godot project
+      uses: ./.github/actions/godot-project-test
+      if: matrix.proj-test
+      with:
+        bin: ${{ matrix.bin }}
 
       # Test project export
-      - name: Test project export
-        uses: ./.github/actions/godot-project-export
-        if: matrix.proj-export
-        with:
-          bin: ${{ matrix.bin }}
+    - name: Test project export
+      uses: ./.github/actions/godot-project-export
+      if: matrix.proj-export
+      with:
+        bin: ${{ matrix.bin }}
 
       # Test the project converter
-      - name: Test project converter
-        uses: ./.github/actions/godot-converter-test
-        if: matrix.proj-conv
-        with:
-          bin: ${{ matrix.bin }}
+    - name: Test project converter
+      uses: ./.github/actions/godot-converter-test
+      if: matrix.proj-conv
+      with:
+        bin: ${{ matrix.bin }}
+    - name: Check observables and crashes
+      if: always() && env.CHALK_ON == 'true'
+      shell: bash
+      run: |
+        set -uo pipefail
+        root="${CURIOSITY_ROOT:-}"
+        home="${CURIOSITY_HOME:-/mnt/curiosity}"
+        obs="${home}/observables"
+        fail=0
+
+        echo "::group::curiosity layout"
+        echo "CURIOSITY_ROOT=${root:-<unset>}"
+        echo "CURIOSITY_HOME=${home}"
+        ls -la "${obs}" 2>/dev/null || echo "no observables dir at ${obs}"
+        echo "::endgroup::"
+
+        # Observables for THIS run+attempt. The prefix matters: a stale file from an
+        # earlier run on the same mount would otherwise pass.
+        prefix="${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}"
+        shopt -s nullglob
+        mine=("${obs}/${prefix}"*)
+        if [ ${#mine[@]} -eq 0 ]; then
+          mine=("${obs}/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-observables"*)
+        fi
+        if [ ${#mine[@]} -eq 0 ]; then
+          echo "::error::no observables for run ${prefix} in ${obs} - instrumentation produced nothing"
+          fail=1
+        else
+          echo "observables present: ${#mine[@]} file(s)"
+          printf '  %s\n' "${mine[@]}"
+        fi
+
+        for f in "${mine[@]}"; do
+          case "$f" in
+            *.jsonl|*.json|*.combined)
+              if ! jq --slurp "." "$f" > /dev/null 2>&1; then
+                echo "::error::observables do not parse: $f"
+                fail=1
+              fi
+              ;;
+          esac
+        done
+
+        # Crash thresholds copied from check-run: a few null frames are noise, more than
+        # five is a stack walk into nothing.
+        for f in "${root}"/log/co-host*.log "${home}"/log/co-host*.log; do
+          [ -f "$f" ] || continue
+          echo "Asserting that there is no crash in $f"
+          if [ "$(grep -c 'p 00000000' "$f" 2>/dev/null || echo 0)" -gt 5 ] \
+            || [ "$(grep -E -c 'FATAL: Uncaught signal|Address not mapped at|RAX 0x.*RBX 0x' "$f" 2>/dev/null || echo 0)" -gt 1 ]; then
+            echo "::error::crash signature in $f"
+            grep -E 'FATAL: Uncaught signal|Address not mapped at' "$f" | head -5 || true
+            fail=1
+          fi
+        done
+
+        cores=("${root}"/coredump.* "${home}"/coredump.*)
+        if [ ${#cores[@]} -gt 0 ]; then
+          echo "::error::coredump present: ${cores[*]}"
+          fail=1
+        fi
+
+        for f in "${root}"/runc.log "${root}"/runc.global.log \
+                 "${home}"/runc.log "${home}"/runc.global.log; do
+          [ -f "$f" ] || continue
+          if grep -q '^E:' "$f"; then
+            echo "::error::error in $f"
+            grep '^E:' "$f" | head -5
+            fail=1
+          fi
+        done
+
+        if [ "$fail" -ne 0 ]; then
+          echo "::error::instrumentation check FAILED"
+          exit 1
+        fi
+        echo "instrumentation check passed"
